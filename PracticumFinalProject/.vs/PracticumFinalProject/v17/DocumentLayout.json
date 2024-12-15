@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\amerp\\OneDrive\\\u0420\u0430\u0431\u043E\u0442\u0435\u043D \u043F\u043B\u043E\u0442\\C-Practicum-Final-Project\\PracticumFinalProject\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{D50AA18F-7800-49B7-8C0F-0985AB7DBF48}|PracticumFinalProject\\PracticumFinalProject.vcxproj|C:\\Users\\amerp\\OneDrive\\\u0420\u0430\u0431\u043E\u0442\u0435\u043D \u043F\u043B\u043E\u0442\\C-Practicum-Final-Project\\PracticumFinalProject\\PracticumFinalProject\\PracticumFinalProject.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{D50AA18F-7800-49B7-8C0F-0985AB7DBF48}|PracticumFinalProject\\PracticumFinalProject.vcxproj|solutionrelative:PracticumFinalProject\\PracticumFinalProject.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "PracticumFinalProject.cpp",
+              "DocumentMoniker": "C:\\Users\\amerp\\OneDrive\\\u0420\u0430\u0431\u043E\u0442\u0435\u043D \u043F\u043B\u043E\u0442\\C-Practicum-Final-Project\\PracticumFinalProject\\PracticumFinalProject\\PracticumFinalProject.cpp",
+              "RelativeDocumentMoniker": "PracticumFinalProject\\PracticumFinalProject.cpp",
+              "ToolTip": "C:\\Users\\amerp\\OneDrive\\\u0420\u0430\u0431\u043E\u0442\u0435\u043D \u043F\u043B\u043E\u0442\\C-Practicum-Final-Project\\PracticumFinalProject\\PracticumFinalProject\\PracticumFinalProject.cpp",
+              "RelativeToolTip": "PracticumFinalProject\\PracticumFinalProject.cpp",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAABsAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-12-15T22:39:04.703Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
