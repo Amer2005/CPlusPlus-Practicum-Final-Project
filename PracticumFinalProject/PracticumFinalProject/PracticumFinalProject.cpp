@@ -1,8 +1,10 @@
 ﻿#include <iostream>
 #include <windows.h> 
+#include <fstream>
 
 const int MAX_SIZE = 20;
 const int MIN_SIZE = 4;
+const char SAVE_FILE_NAME[] = "save-game.txt";
 
 enum ActionTypesEnum
 {
@@ -154,7 +156,7 @@ bool CreateGame(Game &game, int rows, int cols)
         return false;
     }
 
-    if (rows <= MIN_SIZE || cols <= MIN_SIZE)
+    if (rows < MIN_SIZE || cols < MIN_SIZE)
     {
         return false;
     }
@@ -383,12 +385,13 @@ bool DoInputForPlayer(Game& game, Player& player, char* move)
     }
 }
 
-void StartGame(int rows, int cols)
+void SaveGame(Game& game)
 {
-    Game game;
+    
+}
 
-    CreateGame(game, rows, cols);
-
+void GameLoop(Game& game)
+{
     PrintGame(game);
 
     while (true)
@@ -403,15 +406,17 @@ void StartGame(int rows, int cols)
         std::cout << "Enter 'e' to exit and save" << std::endl;
 
         std::cout << ((game.PlayerTurn == Player1) ? "Blue Player Move:" : "Green Player Move:") << std::endl;
-        
-       
 
-        
 
         while (true) {
 
             std::cin >> input;
 
+            if (input[0] == 'e') {
+                SaveGame(game);
+                std::cout << "Game Saved!" << std::endl;
+                return;
+            }
 
             if (DoInputForPlayer(game, currentPlayer, input))
             {
@@ -428,7 +433,7 @@ void StartGame(int rows, int cols)
 
     if (game.player1.totalSum > game.player2.totalSum)
     {
-        std::cout << "Player 1 won the game with sum: " << Round(game.player1.totalSum)<<std::endl;
+        std::cout << "Player 1 won the game with sum: " << Round(game.player1.totalSum) << std::endl;
         std::cout << "Player 2 score: " << Round(game.player2.totalSum) << std::endl;
     }
     else if (game.player2.totalSum > game.player1.totalSum)
@@ -442,7 +447,53 @@ void StartGame(int rows, int cols)
     }
 }
 
+void StartGame(int rows, int cols)
+{
+    Game game;
+
+    CreateGame(game, rows, cols);
+
+    GameLoop(game);
+}
+
+Game LoadGameFromFile()
+{
+    Game game;
+
+    return game;
+}
+
+void LoadGame()
+{
+    Game game = LoadGameFromFile();
+
+    GameLoop(game);
+}
+
 int main()
 {
-    StartGame(7, 7);
+    std::cout << "Type 'l' to load old game or type 'n' to begin new game" << std::endl;
+
+    char input;
+    std::cin >> input;
+
+    if (input == 'l')
+    {
+        LoadGame();
+    }
+    else
+    {
+        int rows, cols;
+
+        std::cout << "Enter row count: " << std::endl;
+
+        std::cin >> rows;
+
+        std::cout << "Enter collumn count: " << std::endl;
+
+        std::cin >> cols;
+
+        system("cls");
+        StartGame(rows, cols);
+    }
 }
