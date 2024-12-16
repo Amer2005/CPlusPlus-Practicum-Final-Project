@@ -1,4 +1,5 @@
 ﻿  PracticumFinalProject.cpp
-C:\Users\amerp\OneDrive\Работен плот\CPlusPlus-Practicum-Final-Project\PracticumFinalProject\PracticumFinalProject\PracticumFinalProject.cpp(131,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-C:\Users\amerp\OneDrive\Работен плот\CPlusPlus-Practicum-Final-Project\PracticumFinalProject\PracticumFinalProject\PracticumFinalProject.cpp(153,1): warning C4715: 'CreateGame': not all control paths return a value
+C:\Users\amerp\OneDrive\Работен плот\CPlusPlus-Practicum-Final-Project\PracticumFinalProject\PracticumFinalProject\PracticumFinalProject.cpp(69,11): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\amerp\OneDrive\Работен плот\CPlusPlus-Practicum-Final-Project\PracticumFinalProject\PracticumFinalProject\PracticumFinalProject.cpp(150,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\amerp\OneDrive\Работен плот\CPlusPlus-Practicum-Final-Project\PracticumFinalProject\PracticumFinalProject\PracticumFinalProject.cpp(175,1): warning C4715: 'CreateGame': not all control paths return a value
   PracticumFinalProject.vcxproj -> C:\Users\amerp\OneDrive\Работен плот\CPlusPlus-Practicum-Final-Project\PracticumFinalProject\x64\Debug\PracticumFinalProject.exe

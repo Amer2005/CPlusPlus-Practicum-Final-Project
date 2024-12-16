@@ -19,6 +19,11 @@ enum UsedTypeEnum
     UsedPlayer2 = 2
 };
 
+enum PlayerTurns {
+    Player1 = 1,
+    Player2 = 2
+};
+
 struct Cell {
     int value = 0;
 
@@ -33,6 +38,8 @@ struct Player
     int y = 0;
 
     double totalSum = 0;
+
+    PlayerTurns PlayerTurn = Player1;
 };
 
 struct Board
@@ -48,9 +55,21 @@ struct Game {
 
     Player player1;
     Player player2;
+
+    PlayerTurns PlayerTurn = Player1;
 };
 
-
+double Round(double d)
+{
+    double x = d * 100.00;
+    if (x < 0)
+        x = x - 0.5;
+    else
+        x = x + 0.5;
+    int y = x;
+    x = y / 100.00;
+    return x;
+}
 
 int GenerateRandomNumber(int min, int max)
 {
@@ -145,9 +164,12 @@ bool CreateGame(Game &game, int rows, int cols)
 
     game.player1.x = 0;
     game.player1.y = 0;
+    game.player1.PlayerTurn = Player1;
 
     game.player2.x = rows - 1;
     game.player2.y = cols - 1;
+    game.player2.PlayerTurn = Player2;
+   
 
     CreateBoard(game.board);
 }
@@ -191,6 +213,7 @@ void PrintGame(Game& game)
     int maxLength = GetNumberLength(maxNumber) + 1;
 
     maxLength += 2; //adding spaces so it looks better;
+
 
     int totalLines = game.board.cols * (maxLength + 1) + 1;
 
@@ -265,15 +288,161 @@ void PrintGame(Game& game)
     {
         std::cout << (char)((i == 0 || i == totalLines - 1) ? '+' : '-');
     }
+
+    std::cout << std::endl;
+
+    
+    SetConsoleTextAttribute(hConsole, FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+    std::cout << "BLUE: "<< Round(game.player1.totalSum);
+
+
+    SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+    std::cout << "         GREEN: " << Round(game.player2.totalSum)<<std::endl;
+
+    SetConsoleTextAttribute(hConsole, 15);
+}
+
+bool CheckCell(Game& game, int row, int col)
+{
+    if (row < 0 || row >= game.board.rows)
+    {
+        return false;
+    }
+
+    if (col < 0 || col >= game.board.cols)
+    {
+        return false;
+    }
+
+    return game.board.cells[row][col].used == Unused;
+}
+
+bool AreThereAvailableMoves(Game& game, Player& player)
+{
+    if (CheckCell(game, player.x + 1, player.y)) return true;
+    if (CheckCell(game, player.x + 1, player.y + 1)) return true;
+    if (CheckCell(game, player.x + 1, player.y - 1)) return true;
+    if (CheckCell(game, player.x - 1, player.y)) return true;
+    if (CheckCell(game, player.x - 1, player.y + 1)) return true;
+    if (CheckCell(game, player.x - 1, player.y - 1)) return true;
+    if (CheckCell(game, player.x, player.y + 1)) return true;
+    if (CheckCell(game, player.x, player.y - 1)) return true;
+
+    return false;
+}
+
+void MovePlayer(Game& game, Player& player, int newRow, int newCol)
+{
+    Cell& currentCell = game.board.cells[newRow][newCol];
+
+    currentCell.used = player.PlayerTurn == Player1 ? UsedPlayer1 : UsedPlayer2;
+
+    switch (currentCell.actionType)
+    {
+    case Additon: player.totalSum += currentCell.value; break;
+    case Subtraction: player.totalSum -= currentCell.value; break;
+    case Multiplication: player.totalSum *= currentCell.value; break;
+    case Division: player.totalSum /= currentCell.value; break;
+    default:
+        break;
+    }
+
+    player.x = newRow;
+    player.y = newCol;
+}
+
+bool DoInputForPlayer(Game& game, Player& player, char* move)
+{
+    int newRow = player.x, newCol = player.y;
+    if (move[0] == 'w' || move[1] == 'w')
+    {
+        newRow--;
+    }
+    if (move[0] == 'a' || move[1] == 'a')
+    {
+        newCol--;
+    }
+    if (move[0] == 's' || move[1] == 's')
+    {
+        newRow++;
+    }
+    if (move[0] == 'd' || move[1] == 'd')
+    {
+        newCol++;
+    }
+
+    if (CheckCell(game, newRow, newCol))
+    {
+        MovePlayer(game, player, newRow, newCol);
+
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+void StartGame(int rows, int cols)
+{
+    Game game;
+
+    CreateGame(game, rows, cols);
+
+    PrintGame(game);
+
+    while (true)
+    {
+        Player& currentPlayer = ((game.PlayerTurn == Player1) ? game.player1 : game.player2);
+        if (!AreThereAvailableMoves(game, currentPlayer))
+        {
+            break;
+        }
+        char input[MAX_SIZE];
+        std::cout << "Enter w a s d to move" << std::endl;
+        std::cout << "Enter 'e' to exit and save" << std::endl;
+
+        std::cout << ((game.PlayerTurn == Player1) ? "Blue Player Move:" : "Green Player Move:") << std::endl;
+        
+       
+
+        
+
+        while (true) {
+
+            std::cin >> input;
+
+
+            if (DoInputForPlayer(game, currentPlayer, input))
+            {
+                break;
+            }
+
+            std::cout << "invalid input try again" << std::endl;
+        }
+        system("cls");
+        PrintGame(game);
+
+        ((game.PlayerTurn == Player1) ? game.PlayerTurn = Player2 : game.PlayerTurn = Player1);
+    }
+
+    if (game.player1.totalSum > game.player2.totalSum)
+    {
+        std::cout << "Player 1 won the game with sum: " << Round(game.player1.totalSum)<<std::endl;
+        std::cout << "Player 2 score: " << Round(game.player2.totalSum) << std::endl;
+    }
+    else if (game.player2.totalSum > game.player1.totalSum)
+    {
+        std::cout << "Player 2 won the game with sum: " << Round(game.player2.totalSum) << std::endl;
+        std::cout << "Player 1 score: " << Round(game.player1.totalSum) << std::endl;
+    }
+    else
+    {
+        std::cout << "It was a draw with total sum: " << Round(game.player2.totalSum) << std::endl;
+    }
 }
 
 int main()
 {
-    Game game;
-
-    CreateGame(game, 6, 6);
-
-    PrintGame(game);
-
-
+    StartGame(7, 7);
 }
