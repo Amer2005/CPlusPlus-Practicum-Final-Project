@@ -385,9 +385,50 @@ bool DoInputForPlayer(Game& game, Player& player, char* move)
     }
 }
 
-void SaveGame(Game& game)
+void SaveGame(std::ofstream& ofs, const Game& game)
 {
-    
+    ofs << game.board.rows << " " << game.board.cols << " ";
+
+    for (int rows = 0; rows < game.board.rows; rows++)
+    {
+        for (int cols = 0; cols < game.board.cols; cols++)
+        {
+            ofs << game.board.cells[rows][cols].value << " "
+                << (int)game.board.cells[rows][cols].actionType << " "
+                << (int)game.board.cells[rows][cols].used << " ";
+        }
+    }
+
+    ofs << game.player1.totalSum << " "
+        << game.player1.x << " "
+        << game.player1.y << " "
+        << (int)game.player1.PlayerTurn << " ";
+
+    ofs << game.player2.totalSum << " "
+        << game.player2.x << " "
+        << game.player2.y << " "
+        << (int)game.player2.PlayerTurn << " ";
+
+    ofs << (int)game.PlayerTurn;
+}
+
+void SaveGame(const char* saveFilePath, const Game& game)
+{
+    if (!saveFilePath)
+    {
+        return;
+    }
+
+    std::ofstream ofs(saveFilePath);
+
+    if (!ofs.is_open())
+    {
+        return;
+    }
+
+    SaveGame(ofs, game);
+
+    ofs.close();
 }
 
 void GameLoop(Game& game)
@@ -413,7 +454,7 @@ void GameLoop(Game& game)
             std::cin >> input;
 
             if (input[0] == 'e') {
-                SaveGame(game);
+                SaveGame(SAVE_FILE_NAME, game);
                 std::cout << "Game Saved!" << std::endl;
                 return;
             }
@@ -456,16 +497,64 @@ void StartGame(int rows, int cols)
     GameLoop(game);
 }
 
-Game LoadGameFromFile()
+Game LoadGameFromFile(std::ifstream& ifs)
 {
     Game game;
+
+    ifs >> game.board.rows >> game.board.cols;
+
+    for (int rows = 0; rows < game.board.rows; rows++)
+    {
+        for (int cols = 0; cols < game.board.cols; cols++)
+        {
+            int actionTypeInt = 1;
+            int usedInt = 1;
+            ifs >> game.board.cells[rows][cols].value >> actionTypeInt >> usedInt;
+
+            game.board.cells[rows][cols].actionType = (ActionTypesEnum)actionTypeInt;
+            game.board.cells[rows][cols].used = (UsedTypeEnum)usedInt;
+        }
+    }
+
+    int playerTurnEnumInt = 1;
+
+    ifs >> game.player1.totalSum >> game.player1.x >> game.player1.y >> playerTurnEnumInt;
+    game.player1.PlayerTurn = (PlayerTurns)playerTurnEnumInt;
+
+    ifs >> game.player2.totalSum >> game.player2.x >> game.player2.y >> playerTurnEnumInt;
+    game.player2.PlayerTurn = (PlayerTurns)playerTurnEnumInt;
+
+    ifs >> playerTurnEnumInt;
+
+    game.PlayerTurn = (PlayerTurns)playerTurnEnumInt;
+
+    return game;
+}
+
+Game LoadGameFromFile(const char* saveFilePath)
+{
+    if (!saveFilePath)
+    {
+        return {};
+    }
+
+    std::ifstream ifs(saveFilePath);
+
+    if (!ifs.is_open())
+    {
+        return {};
+    }
+
+    Game game = LoadGameFromFile(ifs);
+
+    ifs.close();
 
     return game;
 }
 
 void LoadGame()
 {
-    Game game = LoadGameFromFile();
+    Game game = LoadGameFromFile(SAVE_FILE_NAME);
 
     GameLoop(game);
 }
