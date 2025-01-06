@@ -6,12 +6,22 @@ const int MAX_SIZE = 20;
 const int MIN_SIZE = 4;
 const char SAVE_FILE_NAME[] = "save-game.txt";
 
+const int EXTRA_SPACES_PER_CELL = 2;
+const int MAXVALUE_SCALER = 1;
+const int GENERATED_VALUE_DIVIDER = 2;
+
+const HANDLE HConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
 unsigned long PLAYER1_BAKCGROUND_COLOR = BACKGROUND_BLUE;
+unsigned long PLAYER1_FOREGROUND_COLOR = FOREGROUND_BLUE;
+
 unsigned long PLAYER2_BAKCGROUND_COLOR = BACKGROUND_GREEN;
+unsigned long PLAYER2_FOREGROUND_COLOR = FOREGROUND_GREEN;
 
 unsigned long PLAYER_HEADFORE_COLOR = FOREGROUND_RED;
 
 unsigned long PLAYER_USEDCELL_COLOR = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
+unsigned long DEAFULT_COLOR = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
 
 enum ActionTypesEnum
 {
@@ -68,6 +78,11 @@ struct Game {
     PlayerTurns PlayerTurn = Player1;
 };
 
+void SetConsoleColor(unsigned long colorToSet)
+{
+    SetConsoleTextAttribute(HConsole, colorToSet);
+}
+
 double Round(double d)
 {
     double x = d * 100.00;
@@ -89,43 +104,8 @@ int GenerateRandomNumber(int min, int max)
     return num;
 }
 
-bool CreateBoard(Board &board)
+void SetStartingCells(Board& board)
 {
-    int minRowCol = (board.rows < board.cols) ? board.rows : board.cols;
-
-    for (int row = 0; row < board.rows; row++)
-    {
-        for (int col = 0; col < board.cols; col++)
-        {
-            Cell &currentCell = board.cells[row][col];
-
-            if ((row == 0 && col == 0) || (row == board.rows - 1 && col == board.cols - 1))
-            {
-
-                currentCell.value = 0;
-                currentCell.actionType = Additon;
-                currentCell.used = row == 0 ? UsedPlayer1 : UsedPlayer2;
-
-                continue;
-            }
-
-            int maxGeneration = 0;
-            if (row + col <= minRowCol)
-            {
-                maxGeneration = row + col;
-                
-            }
-            else
-            {
-                maxGeneration = (board.rows - row - 1) + (board.cols - col - 1);
-            }
-
-            currentCell.value =  GenerateRandomNumber((maxGeneration) / 2, maxGeneration);
-            currentCell.actionType = (ActionTypesEnum)GenerateRandomNumber(1, 4);
-            currentCell.used = Unused;
-        }
-    }
-
     board.cells[0][1].value = 2;
     board.cells[0][1].actionType = Multiplication;
 
@@ -151,7 +131,46 @@ bool CreateBoard(Board &board)
         board.cells[board.rows / 2 - (board.rows + 1) % 2][board.cols / 2 - (board.cols + 1) % 2].value = 0;
         board.cells[board.rows / 2 - (board.rows + 1) % 2][board.cols / 2 - (board.cols + 1) % 2].actionType = Multiplication;
     }
-    return true;
+}
+
+void CreateBoard(Board &board)
+{
+    int minRowCol = (board.rows < board.cols) ? board.rows : board.cols;
+
+    for (int row = 0; row < board.rows; row++)
+    {
+        for (int col = 0; col < board.cols; col++)
+        {
+            Cell &currentCell = board.cells[row][col];
+
+            if ((row == 0 && col == 0) || (row == board.rows - 1 && col == board.cols - 1))
+            {
+
+                currentCell.value = 0;
+                currentCell.actionType = Additon;
+                currentCell.used = row == 0 ? UsedPlayer1 : UsedPlayer2;
+
+                continue;
+            }
+
+            int maxGeneration = 0;
+
+            int generationCoefficient = row + col;
+
+            if (row + col > minRowCol)
+            {
+                generationCoefficient = (board.rows - row - 1) + (board.cols - col - 1);
+            }
+
+            maxGeneration = generationCoefficient * MAXVALUE_SCALER;
+
+            currentCell.value =  GenerateRandomNumber((maxGeneration) / GENERATED_VALUE_DIVIDER, maxGeneration);
+            currentCell.actionType = (ActionTypesEnum)GenerateRandomNumber(1, 4);
+            currentCell.used = Unused;
+        }
+    }
+
+    SetStartingCells(board);
 }
 
 bool CreateGame(Game &game, int rows, int cols)
@@ -213,15 +232,69 @@ int GetMaxNumber(Board& board)
     return maxNumber;
 }
 
+void PrintSpaces(int count)
+{
+    for (int i = 0; i < count; i++)
+    {
+        std::cout << ' ';
+    }
+}
+
+void PrintCell(Game& game, int row, int col, int maxLength)
+{
+    Cell currentCell = game.board.cells[row][col];
+
+    if (currentCell.used == UsedPlayer1)
+    {
+        SetConsoleColor(PLAYER1_BAKCGROUND_COLOR | BACKGROUND_INTENSITY |
+            PLAYER_USEDCELL_COLOR | FOREGROUND_INTENSITY);
+    }
+    else if (currentCell.used == UsedPlayer2)
+    {
+        SetConsoleColor(PLAYER2_BAKCGROUND_COLOR | BACKGROUND_INTENSITY |
+            PLAYER_USEDCELL_COLOR | FOREGROUND_INTENSITY);
+    }
+
+    if (game.player1.x == row && game.player1.y == col)
+    {
+        SetConsoleColor(PLAYER1_BAKCGROUND_COLOR |
+            PLAYER_HEADFORE_COLOR | FOREGROUND_INTENSITY);
+    }
+
+    else if (game.player2.x == row && game.player2.y == col)
+    {
+        SetConsoleColor(PLAYER2_BAKCGROUND_COLOR |
+            PLAYER_HEADFORE_COLOR | FOREGROUND_INTENSITY);
+    }
+
+    int currentLength = GetNumberLength(currentCell.value) + 1;
+
+    PrintSpaces((maxLength - currentLength) / 2 + (maxLength - currentLength) % 2);
+
+    char currentSymbol = '+';
+
+    switch (currentCell.actionType)
+    {
+    case Additon: currentSymbol = '+'; break;
+    case Subtraction: currentSymbol = '-'; break;
+    case Multiplication: currentSymbol = 'x'; break;
+    default: currentSymbol = '/';
+    }
+
+    std::cout << currentSymbol;
+    std::cout << currentCell.value;
+
+    PrintSpaces((maxLength - currentLength) / 2);
+}
+
 void PrintGame(Game& game)
 {
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
     int maxNumber = GetMaxNumber(game.board);
 
     int maxLength = GetNumberLength(maxNumber) + 1;
 
-    maxLength += 2; //adding spaces so it looks better;
+    maxLength += EXTRA_SPACES_PER_CELL; //adding spaces so it looks better;
 
 
     int totalLines = game.board.cols * (maxLength + 1) + 1;
@@ -237,57 +310,9 @@ void PrintGame(Game& game)
 
         for (int col = 0; col < game.board.cols; col++)
         {
-            Cell currentCell = game.board.cells[row][col];
+            PrintCell(game, row, col, maxLength);
 
-            if (currentCell.used == UsedPlayer1)
-            {
-                SetConsoleTextAttribute(hConsole, PLAYER1_BAKCGROUND_COLOR | BACKGROUND_INTENSITY |
-                    PLAYER_USEDCELL_COLOR | FOREGROUND_INTENSITY);
-            }
-            else if (currentCell.used == UsedPlayer2)
-            {
-                SetConsoleTextAttribute(hConsole, PLAYER2_BAKCGROUND_COLOR  | BACKGROUND_INTENSITY |
-                    PLAYER_USEDCELL_COLOR | FOREGROUND_INTENSITY);
-            }
-
-            if (game.player1.x == row && game.player1.y == col)
-            {
-                SetConsoleTextAttribute(hConsole, PLAYER1_BAKCGROUND_COLOR |
-                    PLAYER_HEADFORE_COLOR | FOREGROUND_INTENSITY);
-            }
-
-            else if (game.player2.x == row && game.player2.y == col)
-            {
-                SetConsoleTextAttribute(hConsole, PLAYER2_BAKCGROUND_COLOR |
-                    PLAYER_HEADFORE_COLOR | FOREGROUND_INTENSITY);
-            }
-
-            int currentLength = GetNumberLength(currentCell.value) + 1;
-
-            for (int i = 0; i < (maxLength - currentLength) / 2 + (maxLength - currentLength) % 2; i++)
-            {
-                std::cout << ' ';
-            }
-
-            char currentSymbol = '+';
-
-            switch (currentCell.actionType)
-            {
-            case Additon: currentSymbol = '+'; break;
-            case Subtraction: currentSymbol = '-'; break;
-            case Multiplication: currentSymbol = 'x'; break;
-            default: currentSymbol = '/';
-            }
-
-            std::cout << currentSymbol;
-            std::cout << currentCell.value;
-
-            for (int i = 0; i < (maxLength - currentLength) / 2; i++)
-            {
-                std::cout << ' ';
-            }
-
-            SetConsoleTextAttribute(hConsole, 15);
+            SetConsoleColor(DEAFULT_COLOR);
             std::cout << '|';
         }
         std::cout << std::endl;
@@ -297,18 +322,15 @@ void PrintGame(Game& game)
     {
         std::cout << (char)((i == 0 || i == totalLines - 1) ? '+' : '-');
     }
+   
+    SetConsoleColor(DEAFULT_COLOR);
 
     std::cout << std::endl;
 
-    
-    SetConsoleTextAttribute(hConsole, FOREGROUND_BLUE | FOREGROUND_INTENSITY);
     std::cout << "BLUE: "<< Round(game.player1.totalSum);
 
-
-    SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
     std::cout << "         GREEN: " << Round(game.player2.totalSum)<<std::endl;
 
-    SetConsoleTextAttribute(hConsole, 15);
 }
 
 bool CheckCell(Game& game, int row, int col)
@@ -348,10 +370,14 @@ void MovePlayer(Game& game, Player& player, int newRow, int newCol)
 
     switch (currentCell.actionType)
     {
-    case Additon: player.totalSum += currentCell.value; break;
-    case Subtraction: player.totalSum -= currentCell.value; break;
-    case Multiplication: player.totalSum *= currentCell.value; break;
-    case Division: player.totalSum /= currentCell.value; break;
+    case Additon: 
+        player.totalSum += currentCell.value; break;
+    case Subtraction: 
+        player.totalSum -= currentCell.value; break;
+    case Multiplication: 
+        player.totalSum *= currentCell.value; break;
+    case Division: 
+        player.totalSum /= currentCell.value; break;
     default:
         break;
     }
@@ -438,6 +464,20 @@ void SaveGame(const char* saveFilePath, const Game& game)
     ofs.close();
 }
 
+void PrintPlayerName(PlayerTurns player)
+{
+    if (player == Player1)
+    {
+        SetConsoleColor(PLAYER1_FOREGROUND_COLOR);
+        std::cout << "Player 1";
+    }
+    else
+    {
+        SetConsoleColor(PLAYER2_FOREGROUND_COLOR);
+        std::cout << "Player 2";
+    }
+}
+
 void GameLoop(Game& game)
 {
     PrintGame(game);
@@ -451,10 +491,13 @@ void GameLoop(Game& game)
         }
         char input[MAX_SIZE];
         std::cout << "Enter w a s d to move" << std::endl;
+
         std::cout << "Enter 'e' to exit and save" << std::endl;
 
-        std::cout << ((game.PlayerTurn == Player1) ? "Blue Player Move:" : "Green Player Move:") << std::endl;
+        PrintPlayerName(game.PlayerTurn);
 
+        SetConsoleColor(DEAFULT_COLOR);
+        std::cout<< " Move: " << std::endl;
 
         while (true) {
 
@@ -481,13 +524,18 @@ void GameLoop(Game& game)
 
     if (game.player1.totalSum > game.player2.totalSum)
     {
-        std::cout << "Player 1 won the game with sum: " << Round(game.player1.totalSum) << std::endl;
-        std::cout << "Player 2 score: " << Round(game.player2.totalSum) << std::endl;
+        PrintPlayerName(Player1);
+        std::cout << " won the game with sum: " << Round(game.player1.totalSum) << std::endl;
+        PrintPlayerName(Player2);
+        std::cout << " score: " << Round(game.player2.totalSum) << std::endl;
     }
     else if (game.player2.totalSum > game.player1.totalSum)
     {
-        std::cout << "Player 2 won the game with sum: " << Round(game.player2.totalSum) << std::endl;
-        std::cout << "Player 1 score: " << Round(game.player1.totalSum) << std::endl;
+        PrintPlayerName(Player2);
+        std::cout << " won the game with sum: " << Round(game.player2.totalSum) << std::endl;
+
+        PrintPlayerName(Player1);
+        std::cout << " score: " << Round(game.player1.totalSum) << std::endl;
     }
     else
     {
@@ -566,7 +614,7 @@ void LoadGame()
     GameLoop(game);
 }
 
-int main()
+void LaunchMainMenu()
 {
     std::cout << "Type 'l' to load old game or type 'n' to begin new game" << std::endl;
 
@@ -592,4 +640,9 @@ int main()
         system("cls");
         StartGame(rows, cols);
     }
+}
+
+int main()
+{
+    LaunchMainMenu();
 }
