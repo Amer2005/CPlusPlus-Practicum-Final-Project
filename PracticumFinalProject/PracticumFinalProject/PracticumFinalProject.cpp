@@ -6,6 +6,13 @@ const int MAX_SIZE = 20;
 const int MIN_SIZE = 4;
 const char SAVE_FILE_NAME[] = "save-game.txt";
 
+unsigned long PLAYER1_BAKCGROUND_COLOR = BACKGROUND_BLUE;
+unsigned long PLAYER2_BAKCGROUND_COLOR = BACKGROUND_GREEN;
+
+unsigned long PLAYER_HEADFORE_COLOR = FOREGROUND_RED;
+
+unsigned long PLAYER_USEDCELL_COLOR = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
+
 enum ActionTypesEnum
 {
     Additon = 1,
@@ -234,25 +241,25 @@ void PrintGame(Game& game)
 
             if (currentCell.used == UsedPlayer1)
             {
-                SetConsoleTextAttribute(hConsole, BACKGROUND_BLUE  | BACKGROUND_INTENSITY |
-                    FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+                SetConsoleTextAttribute(hConsole, PLAYER1_BAKCGROUND_COLOR | BACKGROUND_INTENSITY |
+                    PLAYER_USEDCELL_COLOR | FOREGROUND_INTENSITY);
             }
             else if (currentCell.used == UsedPlayer2)
             {
-                SetConsoleTextAttribute(hConsole, BACKGROUND_GREEN  | BACKGROUND_INTENSITY |
-                    FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+                SetConsoleTextAttribute(hConsole, PLAYER2_BAKCGROUND_COLOR  | BACKGROUND_INTENSITY |
+                    PLAYER_USEDCELL_COLOR | FOREGROUND_INTENSITY);
             }
 
             if (game.player1.x == row && game.player1.y == col)
             {
-                SetConsoleTextAttribute(hConsole, BACKGROUND_BLUE |
-                    FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+                SetConsoleTextAttribute(hConsole, PLAYER1_BAKCGROUND_COLOR |
+                    PLAYER_HEADFORE_COLOR | FOREGROUND_INTENSITY);
             }
 
             else if (game.player2.x == row && game.player2.y == col)
             {
-                SetConsoleTextAttribute(hConsole, BACKGROUND_GREEN |
-                    FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+                SetConsoleTextAttribute(hConsole, PLAYER2_BAKCGROUND_COLOR |
+                    PLAYER_HEADFORE_COLOR | FOREGROUND_INTENSITY);
             }
 
             int currentLength = GetNumberLength(currentCell.value) + 1;
