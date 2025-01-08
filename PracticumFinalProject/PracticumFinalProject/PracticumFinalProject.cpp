@@ -13,10 +13,10 @@ const int GENERATED_VALUE_DIVIDER = 2;
 const HANDLE HConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
 unsigned long PLAYER1_BAKCGROUND_COLOR = BACKGROUND_BLUE;
-unsigned long PLAYER1_FOREGROUND_COLOR = FOREGROUND_BLUE;
+unsigned long PLAYER1_FOREGROUND_COLOR = FOREGROUND_BLUE | FOREGROUND_INTENSITY;
 
 unsigned long PLAYER2_BAKCGROUND_COLOR = BACKGROUND_GREEN;
-unsigned long PLAYER2_FOREGROUND_COLOR = FOREGROUND_GREEN;
+unsigned long PLAYER2_FOREGROUND_COLOR = FOREGROUND_GREEN | FOREGROUND_INTENSITY;
 
 unsigned long PLAYER_HEADFORE_COLOR = FOREGROUND_RED;
 
@@ -77,6 +77,16 @@ struct Game {
 
     PlayerTurns PlayerTurn = Player1;
 };
+
+char ToLower(char ch)
+{
+    if (ch >= 'A' && ch <= 'Z')
+    {
+        return (ch - 'A') + 'a';
+    }
+
+    return ch;
+}
 
 void SetConsoleColor(unsigned long colorToSet)
 {
@@ -289,7 +299,6 @@ void PrintCell(Game& game, int row, int col, int maxLength)
 
 void PrintGame(Game& game)
 {
-
     int maxNumber = GetMaxNumber(game.board);
 
     int maxLength = GetNumberLength(maxNumber) + 1;
@@ -327,9 +336,16 @@ void PrintGame(Game& game)
 
     std::cout << std::endl;
 
+    SetConsoleColor(PLAYER1_FOREGROUND_COLOR);
+
     std::cout << "BLUE: "<< Round(game.player1.totalSum);
+    
+    SetConsoleColor(PLAYER2_FOREGROUND_COLOR);
 
     std::cout << "         GREEN: " << Round(game.player2.totalSum)<<std::endl;
+
+    SetConsoleColor(DEAFULT_COLOR);
+
 
 }
 
@@ -489,7 +505,9 @@ void GameLoop(Game& game)
         {
             break;
         }
+
         char input[MAX_SIZE];
+
         std::cout << "Enter w a s d to move" << std::endl;
 
         std::cout << "Enter 'e' to exit and save" << std::endl;
@@ -616,30 +634,83 @@ void LoadGame()
 
 void LaunchMainMenu()
 {
-    std::cout << "Type 'l' to load old game or type 'n' to begin new game" << std::endl;
-
     char input;
-    std::cin >> input;
+    bool wrongInput = false;
 
-    if (input == 'l')
+    do
     {
-        LoadGame();
-    }
-    else
-    {
-        int rows, cols;
-
-        std::cout << "Enter row count: " << std::endl;
-
-        std::cin >> rows;
-
-        std::cout << "Enter collumn count: " << std::endl;
-
-        std::cin >> cols;
-
         system("cls");
-        StartGame(rows, cols);
-    }
+
+        std::cout << "====================================" << std::endl;
+        std::cout << "            MATH TRICKS             " << std::endl;
+        std::cout << "====================================" << std::endl;
+        std::cout << "[L] Load Game" << std::endl;
+        std::cout << "[N] New Game" << std::endl;
+        std::cout << "[Q] Quit" << std::endl;
+        std::cout << "------------------------------------" << std::endl;
+
+        if (wrongInput)
+        {
+            std::cout << "Invalid choice. Please try again." << std::endl;
+        }
+
+        std::cout << "Enter your choice: ";
+
+        std::cin >> input;
+        input = ToLower(input);
+
+        if (input == 'l')
+        {
+            system("cls");
+
+            LoadGame();
+
+            return;
+        }
+        else if (input == 'n')
+        {
+            int rows = 0, cols = 0;
+
+            std::cout << "Starting a new game!" << std::endl;
+
+            while (rows == 0)
+            {
+                std::cout << "Enter row count (number between " << MIN_SIZE << " and " << MAX_SIZE << "): ";
+                std::cin >> rows;
+                if (rows < MIN_SIZE || rows > MAX_SIZE)
+                {
+                    std::cout << "Invalid input. Please enter a integer between " << MIN_SIZE << " and " << MAX_SIZE << std::endl;
+                    rows = 0;
+                }
+            }
+
+            while (cols == 0)
+            {
+                std::cout << "Enter column count (number between " << MIN_SIZE << " and " << MAX_SIZE << "): ";
+                std::cin >> cols;
+                if (rows < MIN_SIZE || rows > MAX_SIZE)
+                {
+                    std::cout << "Invalid input. Please enter a integer between " << MIN_SIZE << " and " << MAX_SIZE << std::endl;
+                    cols = 0;
+                }
+            }
+
+            system("cls");
+
+            StartGame(rows, cols);
+
+            return;
+        }
+        else if (input == 'q')
+        {
+            std::cout << "Exiting game!";
+            return;
+        }
+
+        wrongInput = true;
+
+
+    } while (true);
 }
 
 int main()
