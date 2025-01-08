@@ -173,7 +173,7 @@ void CreateBoard(Board &board)
             }
 
             maxGeneration = generationCoefficient * MAXVALUE_SCALER;
-
+            
             currentCell.value =  GenerateRandomNumber((maxGeneration) / GENERATED_VALUE_DIVIDER, maxGeneration);
             currentCell.actionType = (ActionTypesEnum)GenerateRandomNumber(1, 4);
             currentCell.used = Unused;
@@ -492,6 +492,8 @@ void PrintPlayerName(PlayerTurns player)
         SetConsoleColor(PLAYER2_FOREGROUND_COLOR);
         std::cout << "Player 2";
     }
+
+    SetConsoleColor(DEAFULT_COLOR);
 }
 
 void GameLoop(Game& game)
@@ -514,7 +516,6 @@ void GameLoop(Game& game)
 
         PrintPlayerName(game.PlayerTurn);
 
-        SetConsoleColor(DEAFULT_COLOR);
         std::cout<< " Move: " << std::endl;
 
         while (true) {
