@@ -13,7 +13,7 @@
 
 ### Purpose
 
-Project was made as a final project for the **Introduction to programming** course  
+The project was made as a final project for the **Introduction to Programming** C++ course  
 
 ---
 
