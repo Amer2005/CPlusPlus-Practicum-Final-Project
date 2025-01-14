@@ -6,6 +6,11 @@ const int MAX_SIZE = 20;
 const int MIN_SIZE = 4;
 const char SAVE_FILE_NAME[] = "save-game.txt";
 
+const char UP_KEY = 'w';
+const char DOWN_KEY = 's';
+const char LEFT_KEY = 'a';
+const char RIGHT_KEY = 'd';
+
 const int EXTRA_SPACES_PER_CELL = 2;
 const int MAXVALUE_SCALER = 1;
 const int GENERATED_VALUE_DIVIDER = 2;
@@ -18,7 +23,7 @@ unsigned long PLAYER1_FOREGROUND_COLOR = FOREGROUND_BLUE | FOREGROUND_INTENSITY;
 unsigned long PLAYER2_BAKCGROUND_COLOR = BACKGROUND_GREEN;
 unsigned long PLAYER2_FOREGROUND_COLOR = FOREGROUND_GREEN | FOREGROUND_INTENSITY;
 
-unsigned long PLAYER_HEADFORE_COLOR = FOREGROUND_RED;
+unsigned long PLAYER_HEADFORE_COLOR = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
 
 unsigned long PLAYER_USEDCELL_COLOR = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
 unsigned long DEAFULT_COLOR = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
@@ -78,6 +83,18 @@ struct Game {
     PlayerTurns PlayerTurn = Player1;
 };
 
+int GetStringLength(char* ch)
+{
+    int size = 0;
+    while (*ch != '\0')
+    {
+        size++;
+        ch++;
+    }
+
+    return size;
+}
+
 char ToLower(char ch)
 {
     if (ch >= 'A' && ch <= 'Z')
@@ -87,6 +104,20 @@ char ToLower(char ch)
 
     return ch;
 }
+
+char* ToLower(char* ch)
+{
+    char* result = new char[GetStringLength(ch)] {};
+    int index = 0;
+    while (ch[index] != '\0')
+    {
+        result[index] = ToLower(ch[index]);
+        index++;
+    }
+
+    return result;
+}
+
 
 void SetConsoleColor(unsigned long colorToSet)
 {
@@ -143,7 +174,7 @@ void SetStartingCells(Board& board)
     }
 }
 
-void CreateBoard(Board &board)
+void CreateBoard(Board& board)
 {
     int minRowCol = (board.rows < board.cols) ? board.rows : board.cols;
 
@@ -151,7 +182,7 @@ void CreateBoard(Board &board)
     {
         for (int col = 0; col < board.cols; col++)
         {
-            Cell &currentCell = board.cells[row][col];
+            Cell& currentCell = board.cells[row][col];
 
             if ((row == 0 && col == 0) || (row == board.rows - 1 && col == board.cols - 1))
             {
@@ -173,8 +204,8 @@ void CreateBoard(Board &board)
             }
 
             maxGeneration = generationCoefficient * MAXVALUE_SCALER;
-            
-            currentCell.value =  GenerateRandomNumber((maxGeneration) / GENERATED_VALUE_DIVIDER, maxGeneration);
+
+            currentCell.value = GenerateRandomNumber((maxGeneration) / GENERATED_VALUE_DIVIDER, maxGeneration);
             currentCell.actionType = (ActionTypesEnum)GenerateRandomNumber(1, 4);
             currentCell.used = Unused;
         }
@@ -183,7 +214,7 @@ void CreateBoard(Board &board)
     SetStartingCells(board);
 }
 
-bool CreateGame(Game &game, int rows, int cols)
+bool CreateGame(Game& game, int rows, int cols)
 {
     srand(time(0));
 
@@ -207,7 +238,7 @@ bool CreateGame(Game &game, int rows, int cols)
     game.player2.x = rows - 1;
     game.player2.y = cols - 1;
     game.player2.PlayerTurn = Player2;
-   
+
 
     CreateBoard(game.board);
 }
@@ -331,18 +362,18 @@ void PrintGame(Game& game)
     {
         std::cout << (char)((i == 0 || i == totalLines - 1) ? '+' : '-');
     }
-   
+
     SetConsoleColor(DEAFULT_COLOR);
 
     std::cout << std::endl;
 
     SetConsoleColor(PLAYER1_FOREGROUND_COLOR);
 
-    std::cout << "BLUE: "<< Round(game.player1.totalSum);
-    
+    std::cout << "BLUE: " << Round(game.player1.totalSum);
+
     SetConsoleColor(PLAYER2_FOREGROUND_COLOR);
 
-    std::cout << "         GREEN: " << Round(game.player2.totalSum)<<std::endl;
+    std::cout << "         GREEN: " << Round(game.player2.totalSum) << std::endl;
 
     SetConsoleColor(DEAFULT_COLOR);
 
@@ -386,13 +417,13 @@ void MovePlayer(Game& game, Player& player, int newRow, int newCol)
 
     switch (currentCell.actionType)
     {
-    case Additon: 
+    case Additon:
         player.totalSum += currentCell.value; break;
-    case Subtraction: 
+    case Subtraction:
         player.totalSum -= currentCell.value; break;
-    case Multiplication: 
+    case Multiplication:
         player.totalSum *= currentCell.value; break;
-    case Division: 
+    case Division:
         player.totalSum /= currentCell.value; break;
     default:
         break;
@@ -405,19 +436,22 @@ void MovePlayer(Game& game, Player& player, int newRow, int newCol)
 bool DoInputForPlayer(Game& game, Player& player, char* move)
 {
     int newRow = player.x, newCol = player.y;
-    if (move[0] == 'w' || move[1] == 'w')
+
+    move = ToLower(move);
+
+    if (move[0] == UP_KEY || move[1] == UP_KEY)
     {
         newRow--;
     }
-    if (move[0] == 'a' || move[1] == 'a')
+    if (move[0] == LEFT_KEY || move[1] == LEFT_KEY)
     {
         newCol--;
     }
-    if (move[0] == 's' || move[1] == 's')
+    if (move[0] == DOWN_KEY || move[1] == DOWN_KEY)
     {
         newRow++;
     }
-    if (move[0] == 'd' || move[1] == 'd')
+    if (move[0] == RIGHT_KEY || move[1] == RIGHT_KEY)
     {
         newCol++;
     }
@@ -516,7 +550,7 @@ void GameLoop(Game& game)
 
         PrintPlayerName(game.PlayerTurn);
 
-        std::cout<< " Move: " << std::endl;
+        std::cout << " Move: " << std::endl;
 
         while (true) {
 
