@@ -1,4 +1,18 @@
-﻿#include <iostream>
+﻿/* *
+*
+* Solution to course project # 2
+* Introduction of programming course
+* Faculty of Mathematics and Informatics of Sofia University
+* Winter semester 2024/2025
+*
+* @author Amer Pandzharov
+* @idnumber 7MI0600478
+* @compiler VCC
+*
+* main cpp file
+*/
+
+#include <iostream>
 #include <windows.h> 
 #include <fstream>
 
@@ -214,18 +228,18 @@ void CreateBoard(Board& board)
     SetStartingCells(board);
 }
 
-bool CreateGame(Game& game, int rows, int cols)
+void CreateGame(Game& game, int rows, int cols)
 {
     srand(time(0));
 
     if (rows > MAX_SIZE || cols > MAX_SIZE)
     {
-        return false;
+        return;
     }
 
     if (rows < MIN_SIZE || cols < MIN_SIZE)
     {
-        return false;
+        return;
     }
 
     game.board.rows = rows;
@@ -241,6 +255,8 @@ bool CreateGame(Game& game, int rows, int cols)
 
 
     CreateBoard(game.board);
+
+    return;
 }
 
 int GetNumberLength(int num)
@@ -424,6 +440,7 @@ void MovePlayer(Game& game, Player& player, int newRow, int newCol)
     case Multiplication:
         player.totalSum *= currentCell.value; break;
     case Division:
+        currentCell.value = currentCell.value == 0 ? 1 : currentCell.value;
         player.totalSum /= currentCell.value; break;
     default:
         break;
@@ -723,7 +740,7 @@ void LaunchMainMenu()
             {
                 std::cout << "Enter column count (number between " << MIN_SIZE << " and " << MAX_SIZE << "): ";
                 std::cin >> cols;
-                if (rows < MIN_SIZE || rows > MAX_SIZE)
+                if (cols < MIN_SIZE || cols > MAX_SIZE)
                 {
                     std::cout << "Invalid input. Please enter a integer between " << MIN_SIZE << " and " << MAX_SIZE << std::endl;
                     cols = 0;
