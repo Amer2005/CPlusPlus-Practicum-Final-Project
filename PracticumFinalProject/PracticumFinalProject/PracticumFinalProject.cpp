@@ -454,24 +454,26 @@ bool DoInputForPlayer(Game& game, Player& player, char* move)
 {
     int newRow = player.x, newCol = player.y;
 
-    move = ToLower(move);
+    char* lowerMove = ToLower(move);
 
-    if (move[0] == UP_KEY || move[1] == UP_KEY)
+    if (lowerMove[0] == UP_KEY || lowerMove[1] == UP_KEY)
     {
         newRow--;
     }
-    if (move[0] == LEFT_KEY || move[1] == LEFT_KEY)
+    if (lowerMove[0] == LEFT_KEY || lowerMove[1] == LEFT_KEY)
     {
         newCol--;
     }
-    if (move[0] == DOWN_KEY || move[1] == DOWN_KEY)
+    if (lowerMove[0] == DOWN_KEY || lowerMove[1] == DOWN_KEY)
     {
         newRow++;
     }
-    if (move[0] == RIGHT_KEY || move[1] == RIGHT_KEY)
+    if (lowerMove[0] == RIGHT_KEY || lowerMove[1] == RIGHT_KEY)
     {
         newCol++;
     }
+
+    delete[] lowerMove;
 
     if (CheckCell(game, newRow, newCol))
     {
@@ -573,9 +575,14 @@ void GameLoop(Game& game)
 
             std::cin >> input;
 
-            if (input[0] == 'e') {
+            char* lowerInput = ToLower(input);
+
+            if (lowerInput[0] == 'e') {
                 SaveGame(SAVE_FILE_NAME, game);
                 std::cout << "Game Saved!" << std::endl;
+
+                delete[] lowerInput;
+
                 return;
             }
 
@@ -585,8 +592,11 @@ void GameLoop(Game& game)
             }
 
             std::cout << "invalid input try again" << std::endl;
+
+            delete[] lowerInput;
         }
         system("cls");
+
         PrintGame(game);
 
         ((game.PlayerTurn == Player1) ? game.PlayerTurn = Player2 : game.PlayerTurn = Player1);
