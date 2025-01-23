@@ -132,6 +132,12 @@ char* ToLower(char* ch)
     return result;
 }
 
+void ClearConsole()
+{
+    system("cls");
+
+    return;
+}
 
 void SetConsoleColor(unsigned long colorToSet)
 {
@@ -595,7 +601,8 @@ void GameLoop(Game& game)
 
             delete[] lowerInput;
         }
-        system("cls");
+
+        ClearConsole();
 
         PrintGame(game);
 
@@ -701,7 +708,7 @@ void LaunchMainMenu()
 
     do
     {
-        system("cls");
+        ClearConsole();
 
         std::cout << "====================================" << std::endl;
         std::cout << "            MATH TRICKS             " << std::endl;
@@ -723,7 +730,7 @@ void LaunchMainMenu()
 
         if (input == 'l')
         {
-            system("cls");
+            ClearConsole();
 
             LoadGame();
 
@@ -757,7 +764,7 @@ void LaunchMainMenu()
                 }
             }
 
-            system("cls");
+            ClearConsole();
 
             StartGame(rows, cols);
 
